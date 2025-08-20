@@ -7,7 +7,7 @@ const os = require('os');
 
 // Configuration
 const CONFIG = {
-    facefusionPath: path.join(os.homedir(), 'code', 'facefusion', 'facefusion'),
+    facefusionPath: process.platform === 'win32' ? 'D:\\FaceFusion\\3.1.2' : path.join(os.homedir(), 'code', 'facefusion', 'facefusion'),
     sourceImage: path.join(__dirname, 'data', 'src', 'MillieBobbyBrown.jpg'),
     targetDir: path.join(__dirname, 'data', 'trgt'),
     outputDir: path.join(__dirname, 'data', 'out'),
