@@ -213,5 +213,4 @@ if (!fs.existsSync(CONFIG.targetDir)) {
 // Run batch processing
 processBatch().catch(error => {
     console.error(`Unexpected error: ${error.message}`);
-    process.exit(1);
 });
