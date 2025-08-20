@@ -16,7 +16,7 @@ const CONFIG = {
     // Settings from settings.txt
     processors: ['face_swapper', 'face_enhancer', 'frame_enhancer'],
     faceSwapperPixelBoost: '1024x1024',
-    executionProviders: process.platform === 'win32' ? ['cuda', 'tensorrt'] : ['cpu'],
+    executionProviders: process.platform === 'win32' ? ['cuda' /*, 'tensorrt' */ ] : ['cpu'],
     executionThreadCount: process.platform === 'win32' ? 16 : 4,
     faceMaskTypes: ['box', 'occlusion'],
     faceDetectorAngles: [0, 90, 180, 270]
