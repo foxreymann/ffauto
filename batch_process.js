@@ -16,8 +16,8 @@ const CONFIG = {
     // Settings from settings.txt
     processors: ['face_swapper', 'face_enhancer', 'frame_enhancer'],
     faceSwapperPixelBoost: '1024x1024',
-    executionProvider: 'cpu', // Changed from cuda to cpu as requested
-    executionThreadCount: 4,
+    executionProviders: process.platform === 'win32' ? ['cuda', 'tensorrt'] : ['cpu'],
+    executionThreadCount: process.platform === 'win32' ? 16 : 4,
     faceMaskTypes: ['box', 'occlusion'],
     faceDetectorAngles: [0, 90, 180, 270]
 };
@@ -61,7 +61,7 @@ function processImage(targetImage) {
             '--output-path', outputPath,
             '--processors', ...CONFIG.processors,
             '--face-swapper-pixel-boost', CONFIG.faceSwapperPixelBoost,
-            '--execution-providers', CONFIG.executionProvider,
+            '--execution-providers', ...CONFIG.executionProviders,
             '--execution-thread-count', CONFIG.executionThreadCount.toString(),
             '--face-mask-types', ...CONFIG.faceMaskTypes,
             '--face-detector-angles', ...CONFIG.faceDetectorAngles.map(a => a.toString()),
@@ -127,7 +127,7 @@ async function processBatch() {
     console.log(`   Source: ${path.basename(CONFIG.sourceImage)}`);
     console.log(`   Target Directory: ${CONFIG.targetDir}`);
     console.log(`   Output Directory: ${CONFIG.outputDir}`);
-    console.log(`   Execution Provider: ${CONFIG.executionProvider}`);
+    console.log(`   Execution Providers: ${CONFIG.executionProviders.join(', ')}`);
     console.log(`   Processors: ${CONFIG.processors.join(', ')}`);
     console.log('=' .repeat(60));
     
