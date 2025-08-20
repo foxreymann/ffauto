@@ -1,0 +1,217 @@
+#!/usr/bin/env node
+
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+
+// Configuration
+const CONFIG = {
+    facefusionPath: path.join(os.homedir(), 'code', 'facefusion', 'facefusion'),
+    sourceImage: path.join(__dirname, 'data', 'src', 'MillieBobbyBrown.jpg'),
+    targetDir: path.join(__dirname, 'data', 'trgt'),
+    outputDir: path.join(__dirname, 'data', 'out'),
+    condaEnv: 'facefusion',
+    
+    // Settings from settings.txt
+    processors: ['face_swapper', 'face_enhancer', 'frame_enhancer'],
+    faceSwapperPixelBoost: '1024x1024',
+    executionProvider: 'cpu', // Changed from cuda to cpu as requested
+    executionThreadCount: 4,
+    faceMaskTypes: ['box', 'occlusion'],
+    faceDetectorAngles: [0, 90, 180, 270]
+};
+
+// Ensure output directory exists
+if (!fs.existsSync(CONFIG.outputDir)) {
+    fs.mkdirSync(CONFIG.outputDir, { recursive: true });
+}
+
+// Get all image files from target directory
+function getTargetImages() {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.webp'];
+    
+    try {
+        const files = fs.readdirSync(CONFIG.targetDir);
+        return files.filter(file => {
+            const ext = path.extname(file).toLowerCase();
+            return imageExtensions.includes(ext);
+        }).map(file => path.join(CONFIG.targetDir, file));
+    } catch (error) {
+        console.error(`Error reading target directory: ${error.message}`);
+        return [];
+    }
+}
+
+// Process a single image
+function processImage(targetImage) {
+    return new Promise((resolve, reject) => {
+        const targetName = path.basename(targetImage);
+        const outputName = targetName.replace(path.extname(targetName), '_processed' + path.extname(targetName));
+        const outputPath = path.join(CONFIG.outputDir, outputName);
+        
+        console.log(`Processing: ${targetName}`);
+        
+        // Build command arguments
+        const args = [
+            'facefusion.py',
+            'headless-run',
+            '--source', CONFIG.sourceImage,
+            '--target', targetImage,
+            '--output-path', outputPath,
+            '--processors', ...CONFIG.processors,
+            '--face-swapper-pixel-boost', CONFIG.faceSwapperPixelBoost,
+            '--execution-providers', CONFIG.executionProvider,
+            '--execution-thread-count', CONFIG.executionThreadCount.toString(),
+            '--face-mask-types', ...CONFIG.faceMaskTypes,
+            '--face-detector-angles', ...CONFIG.faceDetectorAngles.map(a => a.toString()),
+        ];
+
+console.log(args.join(' ')); // Debugging output to see the command being run
+        
+        // Construct the command to activate conda and run facefusion
+        const command = process.platform === 'win32' 
+            ? `conda activate ${CONFIG.condaEnv} && cd ${CONFIG.facefusionPath} && python ${args.join(' ')}`
+            : `source $(conda info --base)/etc/profile.d/conda.sh && conda activate ${CONFIG.condaEnv} && cd ${CONFIG.facefusionPath} && python ${args.join(' ')}`;
+
+        console.log(`Executing command: ${command}`);
+        
+        const shell = process.platform === 'win32' ? 'cmd.exe' : '/bin/bash';
+        const shellArgs = process.platform === 'win32' ? ['/c', command] : ['-c', command];
+        
+        const child = spawn(shell, shellArgs, {
+            stdio: 'pipe',
+            shell: false
+        });
+        
+        let stdout = '';
+        let stderr = '';
+        
+        child.stdout.on('data', (data) => {
+            stdout += data.toString();
+            if (CONFIG.verbose) {
+                process.stdout.write(data);
+            }
+        });
+        
+        child.stderr.on('data', (data) => {
+            stderr += data.toString();
+            if (CONFIG.verbose) {
+                process.stderr.write(data);
+            }
+        });
+        
+        child.on('close', (code) => {
+            if (code === 0) {
+                console.log(`  ✅ Success: ${targetName} -> ${outputName}`);
+                resolve({ success: true, target: targetName, output: outputName });
+            } else {
+                console.error(`  ❌ Failed: ${targetName} (exit code: ${code})`);
+                if (stderr) {
+                    console.error(`     Error: ${stderr.slice(0, 200)}`);
+                }
+                resolve({ success: false, target: targetName, error: stderr });
+            }
+        });
+        
+        child.on('error', (error) => {
+            console.error(`  ❌ Error processing ${targetName}: ${error.message}`);
+            resolve({ success: false, target: targetName, error: error.message });
+        });
+    });
+}
+
+// Main batch processing function
+async function processBatch() {
+    console.log('🚀 Starting FaceFusion Batch Processing');
+    console.log(`   Source: ${path.basename(CONFIG.sourceImage)}`);
+    console.log(`   Target Directory: ${CONFIG.targetDir}`);
+    console.log(`   Output Directory: ${CONFIG.outputDir}`);
+    console.log(`   Execution Provider: ${CONFIG.executionProvider}`);
+    console.log(`   Processors: ${CONFIG.processors.join(', ')}`);
+    console.log('=' .repeat(60));
+    
+    const targetImages = getTargetImages();
+    
+    if (targetImages.length === 0) {
+        console.error('No target images found!');
+        process.exit(1);
+    }
+    
+    console.log(`Found ${targetImages.length} target images\n`);
+    
+    const startTime = Date.now();
+    const results = [];
+    
+    // Process images sequentially to avoid overwhelming the system
+    for (let i = 0; i < targetImages.length; i++) {
+        console.log(`[${i + 1}/${targetImages.length}] ${path.basename(targetImages[i])}`);
+        const result = await processImage(targetImages[i]);
+        results.push(result);
+        
+        // Small delay between processing
+        if (i < targetImages.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+    }
+    
+    const elapsedTime = (Date.now() - startTime) / 1000;
+    const successful = results.filter(r => r.success).length;
+    const failed = results.filter(r => !r.success).length;
+    
+    console.log('=' .repeat(60));
+    console.log('\n📊 Batch Processing Complete!');
+    console.log(`   ✅ Successful: ${successful}/${targetImages.length}`);
+    if (failed > 0) {
+        console.log(`   ❌ Failed: ${failed}/${targetImages.length}`);
+    }
+    console.log(`   ⏱️  Time: ${elapsedTime.toFixed(1)} seconds`);
+    console.log(`   📁 Output: ${CONFIG.outputDir}\n`);
+    
+    process.exit(failed > 0 ? 1 : 0);
+}
+
+// Handle command line arguments
+const args = process.argv.slice(2);
+if (args.includes('--verbose') || args.includes('-v')) {
+    CONFIG.verbose = true;
+}
+
+if (args.includes('--help') || args.includes('-h')) {
+    console.log(`
+Usage: node batch_process.js [options]
+
+Options:
+  -v, --verbose    Show verbose output
+  -h, --help       Show this help message
+
+Configuration:
+  Edit the CONFIG object in this file to change paths and settings.
+  
+Current configuration:
+  - FaceFusion Path: ${CONFIG.facefusionPath}
+  - Source Image: ${CONFIG.sourceImage}
+  - Target Directory: ${CONFIG.targetDir}
+  - Output Directory: ${CONFIG.outputDir}
+  - Conda Environment: ${CONFIG.condaEnv}
+`);
+    process.exit(0);
+}
+
+// Check if source image exists
+if (!fs.existsSync(CONFIG.sourceImage)) {
+    console.error(`Error: Source image not found: ${CONFIG.sourceImage}`);
+    process.exit(1);
+}
+
+// Check if target directory exists
+if (!fs.existsSync(CONFIG.targetDir)) {
+    console.error(`Error: Target directory not found: ${CONFIG.targetDir}`);
+    process.exit(1);
+}
+
+// Run batch processing
+processBatch().catch(error => {
+    console.error(`Unexpected error: ${error.message}`);
+    process.exit(1);
+});

@@ -92,6 +92,8 @@ class FaceFusionBatch:
         
         if self.execution_provider == 'cuda':
             cmd.extend(['--execution-device-id', '0'])
+
+        print(f"cmd: {' '.join(cmd)}")
         
         return cmd
     
