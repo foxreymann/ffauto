@@ -1,0 +1,22 @@
+PROCESSORS:
+face_swapper
+face_enhancer
+frame_enhancer
+
+FACE SWAPPER PIXEL BOOST:
+1024X1024
+
+EXECUTION PROVIDERS: (cpu only for your system)
+cuda
+tensorrt
+EXECUTION THREAD COUNT 16
+
+FACE MASK TYPES:
+box
+occlusion
+
+FACE DETECTOR ANGLES:
+0
+90
+180
+270
