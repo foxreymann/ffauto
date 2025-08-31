@@ -5,7 +5,7 @@ python facefusion.py batch-run ^
   --execution-providers cuda tensorrt ^
   --processors face_swapper expression_restorer face_editor face_enhancer frame_enhancer ^
   --output-image-quality 100 ^
-  --face-swapper-model hyperswap_1a_256 ^
+  --face-swapper-model inswapper_128_fp16 ^
   --reference-face-distance 1.0 ^
   --face-mask-blur 0.9 ^
   --expression-restorer-factor 100 ^
