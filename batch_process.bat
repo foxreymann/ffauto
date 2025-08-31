@@ -1,0 +1,18 @@
+python facefusion.py batch-run ^
+  --source-pattern "D:\ffauto\data\src\MillieBobbyBrown.jpg" ^
+  --target-pattern "D:\ffauto\data\trgt" ^
+  --output-pattern "D:\ffauto\data\out\pic-{index}.jpg" ^
+  --execution-providers cuda tensorrt ^
+  --processors face_swapper expression_restorer face_editor face_enhancer frame_enhancer ^
+  --output-image-quality 100 ^
+  --face-swapper-model hyperswap_1a_256 ^
+  --reference-face-distance 1.0 ^
+  --face-mask-blur 0.9 ^
+  --expression-restorer-factor 100 ^
+  --face-enhancer-blend 100 ^
+  --execution-thread-count 28 ^
+  --face-mask-types box occlusion region ^
+  --face-swapper-pixel-boost 1024x1024 ^
+  --frame-enhancer-model clear_reality_x4 ^
+  --frame-enhancer-blend 100 ^
+  --face-selector-gender female
