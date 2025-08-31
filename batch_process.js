@@ -19,7 +19,8 @@ const CONFIG = {
     executionProviders: process.platform === 'win32' ? ['cuda' , 'tensorrt'] : ['cpu'],
     executionThreadCount: process.platform === 'win32' ? 16 : 4,
     faceMaskTypes: ['box', 'occlusion'],
-    faceDetectorAngles: [0, 90, 180, 270]
+    faceDetectorAngles: [0, 90, 180, 270],
+    faceMaskBlur: 0.3
 };
 
 // Ensure output directory exists
@@ -65,6 +66,7 @@ function processImage(targetImage) {
             '--execution-thread-count', CONFIG.executionThreadCount.toString(),
             '--face-mask-types', ...CONFIG.faceMaskTypes,
             '--face-detector-angles', ...CONFIG.faceDetectorAngles.map(a => a.toString()),
+            '--face-mask-blur', CONFIG.faceMaskBlur.toString(),
         ];
 
 console.log(args.join(' ')); // Debugging output to see the command being run
