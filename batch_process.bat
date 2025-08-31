@@ -1,7 +1,7 @@
 python facefusion.py batch-run ^
   --source-pattern "D:\ffauto\data\src\MillieBobbyBrown.jpg" ^
-  --target-pattern "D:\ffauto\data\trgt" ^
-  --output-pattern "D:\ffauto\data\out\pic-{index}.jpg" ^
+  --target-pattern "D:\ffauto\data\trgt\*.png" ^
+  --output-pattern "D:\ffauto\data\out\pic-{index}.png" ^
   --execution-providers cuda tensorrt ^
   --processors face_swapper expression_restorer face_editor face_enhancer frame_enhancer ^
   --output-image-quality 100 ^
