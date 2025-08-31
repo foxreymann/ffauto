@@ -1,0 +1,1 @@
+cmd /k node batch_process.js

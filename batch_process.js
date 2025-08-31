@@ -14,7 +14,7 @@ const CONFIG = {
     condaEnv: 'facefusion',
     
     // Settings from settings.txt
-    processors: ['face_swapper', 'face_enhancer', 'frame_enhancer'],
+    processors: ['face_swapper', 'face_enhancer', 'frame_enhancer', 'face_editor'],
     faceSwapperPixelBoost: '1024x1024',
     executionProviders: process.platform === 'win32' ? ['cuda' , 'tensorrt'] : ['cpu'],
     executionThreadCount: process.platform === 'win32' ? 16 : 4,
