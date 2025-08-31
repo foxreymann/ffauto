@@ -21,7 +21,8 @@ const CONFIG = {
     faceMaskTypes: ['box', 'occlusion'],
     faceDetectorAngles: [0, 90, 180, 270],
     faceMaskBlur: 0.3,
-    referenceFacePosition: 0
+    referenceFacePosition: 0,
+    faceEditorEyeOpenRatio: 0
 };
 
 // Ensure output directory exists
@@ -69,6 +70,7 @@ function processImage(targetImage) {
             '--face-detector-angles', ...CONFIG.faceDetectorAngles.map(a => a.toString()),
             '--face-mask-blur', CONFIG.faceMaskBlur.toString(),
             '--reference-face-position', CONFIG.referenceFacePosition.toString(),
+            '--face-editor-eye-open-ratio', CONFIG.faceEditorEyeOpenRatio.toString(),
         ];
 
 console.log(args.join(' ')); // Debugging output to see the command being run
