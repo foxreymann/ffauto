@@ -8,21 +8,28 @@ const os = require('os');
 // Configuration
 const CONFIG = {
     facefusionPath: process.platform === 'win32' ? 'D:\\FaceFusion\\3.1.2' : path.join(os.homedir(), 'code', 'facefusion', 'facefusion'),
-    sourceImage: path.join(__dirname, 'data', 'src', 'MillieBobbyBrown.jpg'),
+    sourceImage: path.join(__dirname, 'data', 'src', 'AI_Girl.PNG'),
+    //sourceImage: path.join(__dirname, 'data', 'src'),
     targetDir: path.join(__dirname, 'data', 'trgt'),
     outputDir: path.join(__dirname, 'data', 'out'),
     condaEnv: 'facefusion',
     
     // Settings from settings.txt
-    processors: ['face_swapper', 'face_enhancer', 'frame_enhancer', 'face_editor'],
+    //processors: ['face_swapper', 'age_modifier', 'expression_restorer', 'face_editor', 'face_enhancer', 'frame_enhancer'],
+    processors: ['face_swapper', 'face_enhancer', 'frame_enhancer'],
+    agemodifierdirection: 0, // -100 to 100 with 0 as default
+    faceEditorEyeOpenRatio: 0, //-1 to 1 with 0 as default
     faceSwapperPixelBoost: '1024x1024',
     executionProviders: process.platform === 'win32' ? ['cuda' , 'tensorrt'] : ['cpu'],
     executionThreadCount: process.platform === 'win32' ? 16 : 4,
-    faceMaskTypes: ['box', 'occlusion'],
+    //faceMaskTypes: ['box', 'occlusion'],
+    faceMaskTypes: ['box'],
     faceDetectorAngles: [0, 90, 180, 270],
-    faceMaskBlur: 0.3,
-    referenceFacePosition: 0,
-    faceEditorEyeOpenRatio: 0
+    referenceFacePosition: 0, // 0 default, next face would be 1
+    //outputimageresolution: '1920x1080', // error [FACEFUSION.CORE] Copying image with a resolution of 6000x4000. Fails with frame enhancer
+    //faceselectorgender: 'female', // female or male
+    faceMaskBlur: 0.3 //0.3 should be default
+    
 };
 
 // Ensure output directory exists
@@ -50,7 +57,8 @@ function getTargetImages() {
 function processImage(targetImage) {
     return new Promise((resolve, reject) => {
         const targetName = path.basename(targetImage);
-        const outputName = targetName.replace(path.extname(targetName), '_processed' + path.extname(targetName));
+        //const outputName = targetName.replace(path.extname(targetName), '_processed' + path.extname(targetName));
+        const outputName = targetName.replace(path.extname(targetName) + path.extname(targetName));
         const outputPath = path.join(CONFIG.outputDir, outputName);
         
         console.log(`Processing: ${targetName}`);
@@ -71,6 +79,8 @@ function processImage(targetImage) {
             '--face-mask-blur', CONFIG.faceMaskBlur.toString(),
             '--reference-face-position', CONFIG.referenceFacePosition.toString(),
             '--face-editor-eye-open-ratio', CONFIG.faceEditorEyeOpenRatio.toString(),
+            '--age-modifier-direction', CONFIG.agemodifierdirection.toString(),
+            //'--output-image-resolution', CONFIG.outputimageresolution.toString(),
         ];
 
 console.log(args.join(' ')); // Debugging output to see the command being run
