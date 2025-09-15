@@ -12,7 +12,7 @@ const { imageSize } = require('image-size');
 // Configuration
 const CONFIG = {
     facefusionPath: process.platform === 'win32' ? 'D:\\FaceFusion\\3.1.2' : path.join(os.homedir(), 'code', 'facefusion', 'facefusion'),
-    sourceImage: path.join(__dirname, 'data', 'src', 'AI_Girl.PNG'),
+    sourceImage: null,
     //sourceImage: path.join(__dirname, 'data', 'src'),
     targetDir: path.join(__dirname, 'data', 'trgt'),
     outputDir: path.join(__dirname, 'data', 'out'),
@@ -39,6 +39,21 @@ const CONFIG = {
 // Ensure output directory exists
 if (!fs.existsSync(CONFIG.outputDir)) {
     fs.mkdirSync(CONFIG.outputDir, { recursive: true });
+}
+
+
+// Get the source image from the data/src directory
+function getSourceImage() {
+    const srcDir = path.join(__dirname, 'data', 'src');
+    try {
+        const files = fs.readdirSync(srcDir);
+        if (files.length > 0) {
+            return path.join(srcDir, files[0]);
+        }
+    } catch (error) {
+        console.error(`Error reading source directory: ${error.message}`);
+    }
+    return null;
 }
 
 // Get all image files from target directory
@@ -232,9 +247,12 @@ Current configuration:
     process.exit(0);
 }
 
+// Set the source image
+CONFIG.sourceImage = getSourceImage();
+
 // Check if source image exists
-if (!fs.existsSync(CONFIG.sourceImage)) {
-    console.error(`Error: Source image not found: ${CONFIG.sourceImage}`);
+if (!CONFIG.sourceImage || !fs.existsSync(CONFIG.sourceImage)) {
+    console.error(`Error: Source image not found in ${path.join(__dirname, 'data', 'src')}`);
     process.exit(1);
 }
 

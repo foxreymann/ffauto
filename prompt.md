@@ -1,5 +1,9 @@
 #
 
+for the source image it shouldn't read file name from line 15, it should find first file in /data/src directory and use it as source
+
+#
+
 now for each image check the size 
 
 if size is greater than 2048 * 1080 skip 'face_enhancer' processor
