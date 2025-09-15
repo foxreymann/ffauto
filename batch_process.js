@@ -175,8 +175,8 @@ async function processBatch() {
     const successful = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
 
-console.log({failed})
-const dump=failed;(await import('fs')).writeFileSync('./failed.json', JSON.stringify(dump, null, 2) , 'utf-8')
+console.log({results});
+const dump=results;(await import('fs')).writeFileSync('./results.json', JSON.stringify(dump, null, 2) , 'utf-8')
     
     console.log('=' .repeat(60));
     console.log('\n📊 Batch Processing Complete!');
