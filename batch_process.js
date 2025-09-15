@@ -4,6 +4,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const sizeOf = require('image-size');
 
 // Configuration
 const CONFIG = {
@@ -63,6 +64,15 @@ function processImage(targetImage) {
         
         console.log(`Processing: ${targetName}`);
         
+        // Get image dimensions
+        const dimensions = sizeOf(targetImage);
+        
+        let processors = CONFIG.processors;
+        if (dimensions.width > 2048 || dimensions.height > 1080) {
+            processors = processors.filter(p => p !== 'face_enhancer');
+            console.log(`  Image dimensions (${dimensions.width}x${dimensions.height}) exceed 2048x1080, skipping face_enhancer.`);
+        }
+        
         // Build command arguments
         const args = [
             'facefusion.py',
@@ -70,7 +80,7 @@ function processImage(targetImage) {
             '--source', CONFIG.sourceImage,
             '--target', targetImage,
             '--output-path', outputPath,
-            '--processors', ...CONFIG.processors,
+            '--processors', ...processors,
             '--face-swapper-pixel-boost', CONFIG.faceSwapperPixelBoost,
             '--execution-providers', ...CONFIG.executionProviders,
             '--execution-thread-count', CONFIG.executionThreadCount.toString(),

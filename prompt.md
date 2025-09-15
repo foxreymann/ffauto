@@ -1,3 +1,12 @@
+#
+
+now for each image check the size 
+
+if size is greater than 2048 * 1080 skip 'face_enhancer' processor
+
+
+#
+
 Workflow to automate:
 
 1. Start Facefusion
