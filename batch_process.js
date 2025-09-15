@@ -67,24 +67,17 @@ function processImage(targetImage) {
         
         console.log(`Processing: ${targetName}`);
 
-console.log({targetImage})
-console.log({targetName})
         
         // Get image dimensions
         const buffer = readFileSync(targetImage)
         const dimensions = imageSize(buffer)
 
-
-console.log({dimensions});
-        
         let processors = CONFIG.processors;
         if (dimensions.width > 2048 || dimensions.height > 1200) {
             processors = processors.filter(p => p !== 'frame_enhancer');
             console.log(`  Image dimensions (${dimensions.width}x${dimensions.height}) exceed 2048x1080, skipping face_enhancer.`);
         }
 
-console.log({processors});
-        
         // Build command arguments
         const args = [
             'facefusion.py',
