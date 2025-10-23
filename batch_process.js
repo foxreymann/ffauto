@@ -13,7 +13,7 @@ const { imageSize } = require('image-size');
 const CONFIG = {
     facefusionPath: process.platform === 'win32' ? 'C:\\FaceFusion\\3.1.2' : path.join(os.homedir(), 'code', 'facefusion', 'facefusion'),
     sourceImage: null,
-    sourceDir: 'C:\\Users\\banks\\Desktop\\data',
+    sourceDir: 'C:\\Users\\banks\\Desktop\\data\\src',
     targetDir: 'C:\\Users\\banks\\Desktop\\data\\trgt',
     outputDir: 'C:\\Users\\banks\\Desktop\\data\\out',
     condaEnv: 'facefusion',
@@ -47,14 +47,8 @@ if (!fs.existsSync(CONFIG.outputDir)) {
 function getSourceImage() {
     const srcDir = CONFIG.sourceDir;
 
-console.log({srcDir})
-
     try {
         const files = fs.readdirSync(srcDir);
-
-console.log({files})
-
-console.log(path.join(srcDir, files[0]))
 
         if (files.length > 0) {
             return path.join(srcDir, files[0]);
@@ -101,8 +95,6 @@ function processImage(targetImage) {
             processors = processors.filter(p => p !== 'frame_enhancer');
             console.log(`  Image dimensions (${dimensions.width}x${dimensions.height}) exceed 3840x2160, skipping frame_enhancer.`);
         }
-
-console.log({sourceImage: CONFIG.sourceImage})
 
         // Build command arguments
         const args = [
