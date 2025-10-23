@@ -13,9 +13,9 @@ const { imageSize } = require('image-size');
 const CONFIG = {
     facefusionPath: process.platform === 'win32' ? 'C:\\FaceFusion\\3.1.2' : path.join(os.homedir(), 'code', 'facefusion', 'facefusion'),
     sourceImage: null,
-    //sourceImage: path.join(__dirname, 'data', 'src'),
-    targetDir: path.join(__dirname, 'data', 'trgt'),
-    outputDir: path.join(__dirname, 'data', 'out'),
+    sourceDir: 'C:\\Users\\banks\\Desktop\\data',
+    outputDir: 'C:\\Users\\banks\\Desktop\\data\\trgt',
+    outputDir: 'C:\\Users\\banks\\Desktop\\data\\out',
     condaEnv: 'facefusion',
     
     // Settings from settings.txt
@@ -45,7 +45,7 @@ if (!fs.existsSync(CONFIG.outputDir)) {
 
 // Get the source image from the data/src directory
 function getSourceImage() {
-    const srcDir = path.join(__dirname, 'data', 'src');
+    const srcDir = config.sourceDir;
     try {
         const files = fs.readdirSync(srcDir);
         if (files.length > 0) {
