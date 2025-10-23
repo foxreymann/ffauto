@@ -94,6 +94,8 @@ function processImage(targetImage) {
             console.log(`  Image dimensions (${dimensions.width}x${dimensions.height}) exceed 3840x2160, skipping frame_enhancer.`);
         }
 
+console.log({sourceImage: CONFIG.sourceImage})
+
         // Build command arguments
         const args = [
             'facefusion.py',
