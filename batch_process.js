@@ -25,12 +25,10 @@ const CONFIG = {
     //faceEditorEyeOpenRatio: 0, //-1 to 1 with 0 as default
     faceSwapperPixelBoost: '1024x1024',
     frameEnhancerModel: 'real_esrgan_x4_fp16',
-    //executionProviders: process.platform === 'win32' ? ['cuda' , 'tensorrt'] : ['cpu'],
-    executionProviders: ['tensorrt'],
-    //executionThreadCount: process.platform === 'win32' ? 16 : 4,
+    executionProviders: process.platform === 'win32' ? ['tensorrt'] : ['cpu'],
+    executionThreadCount: process.platform === 'win32' ? 16 : 4,
     executionThreadCount: 16,
-    //faceMaskTypes: ['box', 'occlusion'],
-    faceMaskTypes: ['box'],
+    faceMaskTypes: ['box' /* , 'occlusion' */ ],
     faceDetectorAngles: [0, 90, 180, 270],
     //outputimageresolution: '1920x1080', // error [FACEFUSION.CORE] Copying image with a resolution of 6000x4000. Fails with frame enhancer
     //faceselectorgender: 'female', // female or male
@@ -93,7 +91,7 @@ function processImage(targetImage) {
         let processors = CONFIG.processors;
         if (dimensions.width > 3840 || dimensions.height > 2160) {
             processors = processors.filter(p => p !== 'frame_enhancer');
-            console.log(`  Image dimensions (${dimensions.width}x${dimensions.height}) exceed 2048x1200, skipping frame_enhancer.`);
+            console.log(`  Image dimensions (${dimensions.width}x${dimensions.height}) exceed 3840x2160, skipping frame_enhancer.`);
         }
 
         // Build command arguments
