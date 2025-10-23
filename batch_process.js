@@ -14,7 +14,7 @@ const CONFIG = {
     facefusionPath: process.platform === 'win32' ? 'C:\\FaceFusion\\3.1.2' : path.join(os.homedir(), 'code', 'facefusion', 'facefusion'),
     sourceImage: null,
     sourceDir: 'C:\\Users\\banks\\Desktop\\data',
-    outputDir: 'C:\\Users\\banks\\Desktop\\data\\trgt',
+    targetDir: 'C:\\Users\\banks\\Desktop\\data\\trgt',
     outputDir: 'C:\\Users\\banks\\Desktop\\data\\out',
     condaEnv: 'facefusion',
     
