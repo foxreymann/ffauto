@@ -11,7 +11,7 @@ const { imageSize } = require('image-size');
 
 // Configuration
 const CONFIG = {
-    facefusionPath: process.platform === 'win32' ? 'D:\\FaceFusion\\3.1.2' : path.join(os.homedir(), 'code', 'facefusion', 'facefusion'),
+    facefusionPath: process.platform === 'win32' ? 'C:\\FaceFusion\\3.1.2' : path.join(os.homedir(), 'code', 'facefusion', 'facefusion'),
     sourceImage: null,
     //sourceImage: path.join(__dirname, 'data', 'src'),
     targetDir: path.join(__dirname, 'data', 'trgt'),
@@ -20,19 +20,22 @@ const CONFIG = {
     
     // Settings from settings.txt
     //processors: ['face_swapper', 'age_modifier', 'expression_restorer', 'face_editor', 'face_enhancer', 'frame_enhancer'],
-    processors: ['face_swapper', 'face_enhancer', 'frame_enhancer'],
-    agemodifierdirection: 0, // -100 to 100 with 0 as default
-    faceEditorEyeOpenRatio: 0, //-1 to 1 with 0 as default
+    processors: ['face_swapper', 'age_modifier', 'frame_enhancer', 'face_enhancer'],
+    //agemodifierdirection: -50, // -100 to 100 with 0 as default
+    //faceEditorEyeOpenRatio: 0, //-1 to 1 with 0 as default
     faceSwapperPixelBoost: '1024x1024',
-    executionProviders: process.platform === 'win32' ? ['cuda' , 'tensorrt'] : ['cpu'],
-    executionThreadCount: process.platform === 'win32' ? 16 : 4,
+    frameEnhancerModel: 'real_esrgan_x4_fp16',
+    //executionProviders: process.platform === 'win32' ? ['cuda' , 'tensorrt'] : ['cpu'],
+    executionProviders: ['tensorrt'],
+    //executionThreadCount: process.platform === 'win32' ? 16 : 4,
+    executionThreadCount: 16,
     //faceMaskTypes: ['box', 'occlusion'],
     faceMaskTypes: ['box'],
     faceDetectorAngles: [0, 90, 180, 270],
-    referenceFacePosition: 0, // 0 default, next face would be 1
     //outputimageresolution: '1920x1080', // error [FACEFUSION.CORE] Copying image with a resolution of 6000x4000. Fails with frame enhancer
     //faceselectorgender: 'female', // female or male
-    faceMaskBlur: 0.3 //0.3 should be default
+    //faceMaskBlur: 0.3, //0.3 should be default
+    referenceFacePosition: 0, // 0 default, next face would be 1
     
 };
 
@@ -88,9 +91,9 @@ function processImage(targetImage) {
         const dimensions = imageSize(buffer)
 
         let processors = CONFIG.processors;
-        if (dimensions.width > 2048 || dimensions.height > 1200) {
+        if (dimensions.width > 3840 || dimensions.height > 2160) {
             processors = processors.filter(p => p !== 'frame_enhancer');
-            console.log(`  Image dimensions (${dimensions.width}x${dimensions.height}) exceed 2048x1080, skipping face_enhancer.`);
+            console.log(`  Image dimensions (${dimensions.width}x${dimensions.height}) exceed 2048x1200, skipping frame_enhancer.`);
         }
 
         // Build command arguments
@@ -102,14 +105,16 @@ function processImage(targetImage) {
             '--output-path', outputPath,
             '--processors', ...processors,
             '--face-swapper-pixel-boost', CONFIG.faceSwapperPixelBoost,
+            '--frame-enhancer-model', CONFIG.frameEnhancerModel.toString(),
             '--execution-providers', ...CONFIG.executionProviders,
             '--execution-thread-count', CONFIG.executionThreadCount.toString(),
             '--face-mask-types', ...CONFIG.faceMaskTypes,
             '--face-detector-angles', ...CONFIG.faceDetectorAngles.map(a => a.toString()),
-            '--face-mask-blur', CONFIG.faceMaskBlur.toString(),
+            //'--face-mask-blur', CONFIG.faceMaskBlur.toString(),
             '--reference-face-position', CONFIG.referenceFacePosition.toString(),
-            '--face-editor-eye-open-ratio', CONFIG.faceEditorEyeOpenRatio.toString(),
-            '--age-modifier-direction', CONFIG.agemodifierdirection.toString(),
+            //'--face-selector-gender', CONFIG.faceselectorgender.toString(),
+            //'--face-editor-eye-open-ratio', CONFIG.faceEditorEyeOpenRatio.toString(),
+            //'--age-modifier-direction', CONFIG.agemodifierdirection.toString(),
             //'--output-image-resolution', CONFIG.outputimageresolution.toString(),
         ];
 
