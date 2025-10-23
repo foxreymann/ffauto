@@ -45,7 +45,7 @@ if (!fs.existsSync(CONFIG.outputDir)) {
 
 // Get the source image from the data/src directory
 function getSourceImage() {
-    const srcDir = config.sourceDir;
+    const srcDir = CONFIG.sourceDir;
     try {
         const files = fs.readdirSync(srcDir);
         if (files.length > 0) {
