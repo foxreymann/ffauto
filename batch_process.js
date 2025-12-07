@@ -20,7 +20,7 @@ const CONFIG = {
     
     // Settings from settings.txt
     //processors: ['face_swapper', 'age_modifier', 'expression_restorer', 'face_editor', 'face_enhancer', 'frame_enhancer'],
-    processors: ['face_swapper', 'age_modifier', 'frame_enhancer', 'face_enhancer'],
+    processors: ['face_swapper', 'frame_enhancer', 'face_enhancer'],
     //agemodifierdirection: -50, // -100 to 100 with 0 as default
     //faceEditorEyeOpenRatio: 0, //-1 to 1 with 0 as default
     faceSwapperPixelBoost: '1024x1024',
