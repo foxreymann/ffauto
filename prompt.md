@@ -1,5 +1,14 @@
 #
 
+in @batch_process.js where you get results at line 214
+
+loop over results with success is false to extract failed images
+
+then try to proccessImage the failed images once again, but only once
+
+
+#
+
 for the source image it shouldn't read file name from line 15, it should find first file in /data/src directory and use it as source
 
 #

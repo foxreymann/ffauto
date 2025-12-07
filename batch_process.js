@@ -206,23 +206,52 @@ async function processBatch() {
         }
     }
     
+    // Retry failed images once
+    const failedResults = results.filter(r => !r.success);
+    
+    if (failedResults.length > 0) {
+        console.log('\n⚠️  Found failed images. Retrying once...');
+        console.log('=' .repeat(60));
+
+        for (let i = 0; i < failedResults.length; i++) {
+            const failedResult = failedResults[i];
+            const targetPath = path.join(CONFIG.targetDir, failedResult.target);
+            
+            console.log(`[Retry ${i + 1}/${failedResults.length}] ${failedResult.target}`);
+            const retryResult = await processImage(targetPath);
+            
+            // If retry is successful, update the main results array
+            if (retryResult.success) {
+                 const originalIndex = results.findIndex(r => r.target === failedResult.target);
+                 if (originalIndex !== -1) {
+                     results[originalIndex] = retryResult;
+                 }
+            }
+
+            // Small delay between processing
+            if (i < failedResults.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+    }
+
     const elapsedTime = (Date.now() - startTime) / 1000;
-    const successful = results.filter(r => r.success).length;
-    const failed = results.filter(r => !r.success).length;
+    const successfulCount = results.filter(r => r.success).length;
+    const failedCount = results.filter(r => !r.success).length;
 
 console.log({results});
 const dump=results;(await import('fs')).writeFileSync('./results.json', JSON.stringify(dump, null, 2) , 'utf-8')
     
     console.log('=' .repeat(60));
     console.log('\n📊 Batch Processing Complete!');
-    console.log(`   ✅ Successful: ${successful}/${targetImages.length}`);
-    if (failed > 0) {
-        console.log(`   ❌ Failed: ${failed}/${targetImages.length}`);
+    console.log(`   ✅ Successful: ${successfulCount}/${targetImages.length}`);
+    if (failedCount > 0) {
+        console.log(`   ❌ Failed: ${failedCount}/${targetImages.length}`);
     }
     console.log(`   ⏱️  Time: ${elapsedTime.toFixed(1)} seconds`);
     console.log(`   📁 Output: ${CONFIG.outputDir}\n`);
     
-    process.exit(failed > 0 ? 1 : 0);
+    process.exit(failedCount > 0 ? 1 : 0);
 }
 
 // Handle command line arguments
